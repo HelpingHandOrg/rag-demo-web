@@ -36,6 +36,12 @@ def get_rag_system():
     try:
         if debug_mode:
             st.sidebar.info("Initializing RAG system...")
+        
+        # Set torch multiprocessing method to spawn
+        import torch.multiprocessing as mp
+        if mp.get_start_method(allow_none=True) != 'spawn':
+            mp.set_start_method('spawn', force=True)
+            
         rag = RAGSystem()
         if debug_mode:
             st.sidebar.success("RAG system initialized successfully!")
@@ -69,6 +75,10 @@ example_questions = [
     "What patterns do you see in CNE usage across different platforms?"
 ]
 
+# Initialize session state for question if not exists
+if 'current_question' not in st.session_state:
+    st.session_state.current_question = ""
+
 # Create columns for the main content
 col1, col2 = st.columns([2, 1])
 
@@ -80,6 +90,7 @@ with col1:
         with col_input:
             question = st.text_input(
                 "Enter your question",
+                value=st.session_state.current_question,
                 placeholder="Type your question here or select an example from the sidebar...",
                 key="question_input"
             )
@@ -92,13 +103,13 @@ with col1:
         col_a, col_b = st.columns(2)
         with col_a:
             if st.button(f"Example {i+1}", key=f"ex_{i}"):
-                st.session_state.question_input = example_questions[i]
-                st.experimental_rerun()
+                st.session_state.current_question = example_questions[i]
+                st.rerun()
         with col_b:
             if i+1 < len(example_questions):
                 if st.button(f"Example {i+2}", key=f"ex_{i+1}"):
-                    st.session_state.question_input = example_questions[i+1]
-                    st.experimental_rerun()
+                    st.session_state.current_question = example_questions[i+1]
+                    st.rerun()
 
 with col2:
     st.markdown("### System Status")
