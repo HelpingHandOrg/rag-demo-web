@@ -2,20 +2,17 @@ from semantic_search import SemanticSearchEngine
 from openai import OpenAI
 from typing import List, Dict
 import os
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
+import streamlit as st
 
 class RAGSystem:
     def __init__(self):
         """Initialize the RAG system with semantic search and LLM components."""
         self.search_engine = SemanticSearchEngine()
         
-        # Get API key from environment variables
-        openai_api_key = os.getenv('OPENAI_API_KEY')
+        # Get API key from Streamlit secrets
+        openai_api_key = st.secrets["OPENAI_API_KEY"]
         if not openai_api_key:
-            raise ValueError("OPENAI_API_KEY not found in environment variables")
+            raise ValueError("OPENAI_API_KEY not found in secrets")
         
         # Initialize OpenAI client
         self.client = OpenAI(api_key=openai_api_key)

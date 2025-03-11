@@ -4,19 +4,15 @@ from pymongo import MongoClient
 import torch
 from typing import List, Dict
 import json
-from dotenv import load_dotenv
-import os
+import streamlit as st
 import traceback
-
-# Load environment variables
-load_dotenv()
 
 def connect_to_mongodb():
     """Connect to MongoDB and return database instance."""
     try:
-        mongodb_uri = os.getenv('MONGODB_URI')
+        mongodb_uri = st.secrets["MONGODB_URI"]
         if not mongodb_uri:
-            raise ValueError("MONGODB_URI not found in environment variables")
+            raise ValueError("MONGODB_URI not found in secrets")
             
         print(f"Connecting to MongoDB...")
         client = MongoClient(mongodb_uri)
