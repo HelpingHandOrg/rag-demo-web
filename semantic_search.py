@@ -6,6 +6,8 @@ from typing import List, Dict
 import json
 import streamlit as st
 import traceback
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 
 def connect_to_mongodb():
     """Connect to MongoDB and return database instance."""
@@ -166,4 +168,24 @@ def main():
         print("Please make sure your .env file is properly configured with MONGODB_URI")
 
 if __name__ == "__main__":
-    main() 
+    main()
+
+app = FastAPI()
+search_engine = SemanticSearchEngine()
+
+class SearchRequest(BaseModel):
+    query: str
+    top_k: int = 3
+    min_similarity: float = 0.3
+
+@app.post("/search")
+async def semantic_search(request: SearchRequest) -> List[Dict]:
+    try:
+        results = search_engine.search(
+            query=request.query,
+            top_k=request.top_k,
+            min_similarity=request.min_similarity
+        )
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) 
